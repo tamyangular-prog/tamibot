@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Controle - Bot Lu</title>
+    <style>
+        /* ========================================
+           ESPAÇO TS - IDENTIDADE VISUAL
+           Paleta: Bege #E8DCCF, Off-white #F7F5F2, 
+           Grafite #2E2E2E, Dourado #C6A664
+           ======================================== */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background-color: #E8DCCF;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+        }
+
+        .container {
+            background-color: #F7F5F2;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(46, 46, 46, 0.12);
+            padding: 30px 24px;
+            max-width: 520px;
+            width: 100%;
+        }
+
+        /* ======== HEADER ======== */
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #E8DCCF;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            color: #2E2E2E;
+            margin-bottom: 6px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            color: #8A9A7B;
+            font-size: 0.95em;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* ======== CONFIGURAÇÃO API ======== */
+        .api-config {
+            background-color: #F7F5F2;
+            border: 1.5px solid #E8DCCF;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 18px;
+            font-size: 0.9em;
+            transition: border-color 0.3s ease;
+        }
+
+        .api-config:focus-within {
+            border-color: #C6A664;
+            box-shadow: 0 0 0 3px rgba(198, 166, 100, 0.1);
+        }
+
+        .api-config label {
+            display: block;
+            color: #2E2E2E;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .api-config input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #E8DCCF;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            color: #2E2E2E;
+            background-color: white;
+            transition: all 0.3s ease;
+        }
+
+        .api-config input:focus {
+            outline: none;
+            border-color: #C6A664;
+            box-shadow: 0 0 0 2px rgba(198, 166, 100, 0.1);
+        }
+
+        .api-config small {
+            display: block;
+            margin-top: 6px;
+            font-size: 0.8em;
+            color: #8A9A7B;
+        }
+
+        .api-config small[style*="color: #f44336"] {
+            color: #d32f2f !important;
+        }
+
+        /* ======== STATUS ======== */
+        .status-section {
+            background: linear-gradient(135deg, #F7F5F2 0%, #FAF9F7 100%);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 28px;
+            text-align: center;
+            border: 1px solid #E8DCCF;
+        }
+
+        .status-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .status-indicator {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 0 0 rgba(198, 166, 100, 0.2);
+        }
+
+        .status-indicator.online {
+            background-color: #8A9A7B;
+            box-shadow: 0 0 12px rgba(138, 154, 123, 0.6);
+        }
+
+        .status-indicator.offline {
+            background-color: #C6A664;
+            box-shadow: 0 0 12px rgba(198, 166, 100, 0.4);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        #statusText {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #2E2E2E;
+        }
+
+        /* ======== BOTÕES ======== */
+        .buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 26px;
+        }
+
+        .btn {
+            padding: 14px 18px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 48px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(46, 46, 46, 0.1);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-ligar {
+            background-color: #8A9A7B;
+            color: white;
+        }
+
+        .btn-ligar:hover:not(:disabled) {
+            background-color: #788a6a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(138, 154, 123, 0.3);
+        }
+
+        .btn-ligar:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(138, 154, 123, 0.2);
+        }
+
+        .btn-desligar {
+            background-color: #C6A664;
+            color: white;
+        }
+
+        .btn-desligar:hover:not(:disabled) {
+            background-color: #b3945a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(198, 166, 100, 0.3);
+        }
+
+        .btn-desligar:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(198, 166, 100, 0.2);
+        }
+
+        /* ======== INFO SECTION ======== */
+        .info-section {
+            background-color: #F7F5F2;
+            border: 1px solid #E8DCCF;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 18px;
+        }
+
+        .info-section h3 {
+            color: #2E2E2E;
+            margin-bottom: 12px;
+            font-size: 1em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-box {
+            background-color: white;
+            border-left: 4px solid #C6A664;
+            padding: 14px;
+            border-radius: 8px;
+            min-height: 56px;
+            display: flex;
+            align-items: center;
+        }
+
+        #infoText {
+            color: #2E2E2E;
+            font-size: 0.95em;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        /* ======== LOG SECTION ======== */
+        .log-section {
+            background-color: #F7F5F2;
+            border: 1px solid #E8DCCF;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 18px;
+        }
+
+        .log-section h3 {
+            color: #2E2E2E;
+            margin-bottom: 12px;
+            font-size: 1em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .log {
+            background-color: white;
+            border: 1px solid #E8DCCF;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .log::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .log::-webkit-scrollbar-track {
+            background: #F7F5F2;
+            border-radius: 4px;
+        }
+
+        .log::-webkit-scrollbar-thumb {
+            background: #C6A664;
+            border-radius: 4px;
+        }
+
+        .log::-webkit-scrollbar-thumb:hover {
+            background: #b3945a;
+        }
+
+        .log-item {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            padding: 6px;
+            border-bottom: 1px solid #F0EDEA;
+            color: #2E2E2E;
+            line-height: 1.4;
+        }
+
+        .log-item:last-child {
+            border-bottom: none;
+        }
+
+        .log-item.success {
+            color: #8A9A7B;
+            font-weight: 600;
+        }
+
+        .log-item.error {
+            color: #d32f2f;
+            font-weight: 600;
+        }
+
+        .log-item.info {
+            color: #C6A664;
+        }
+
+        /* ======== FOOTER ======== */
+        .footer {
+            text-align: center;
+            color: #8A9A7B;
+            font-size: 0.85em;
+            border-top: 1px solid #E8DCCF;
+            padding-top: 16px;
+            margin-top: 20px;
+            font-weight: 500;
+        }
+
+        .footer p {
+            margin: 3px 0;
+        }
+
+        /* ======== HORA ======== */
+        .time-display {
+            text-align: center;
+            color: #C6A664;
+            font-size: 0.85em;
+            margin-top: 16px;
+            font-weight: 500;
+        }
+
+        /* ======== LOADING SPINNER ======== */
+        .loading {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2.5px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ======== RESPONSIVO MOBILE ======== */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 20px 16px;
+                border-radius: 16px;
+            }
+
+            .header {
+                margin-bottom: 24px;
+                padding-bottom: 16px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+                margin-bottom: 8px;
+            }
+
+            .header p {
+                font-size: 0.85em;
+                letter-spacing: 0.8px;
+            }
+
+            .buttons {
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+
+            .btn {
+                padding: 12px 14px;
+                font-size: 0.9em;
+                min-height: 44px;
+            }
+
+            .api-config {
+                padding: 14px;
+                margin-bottom: 14px;
+            }
+
+            .api-config label {
+                font-size: 0.9em;
+            }
+
+            .api-config input {
+                padding: 8px 10px;
+                font-size: 0.8em;
+            }
+
+            .status-section {
+                padding: 18px;
+                margin-bottom: 20px;
+            }
+
+            #statusText {
+                font-size: 1.1em;
+            }
+
+            .info-section,
+            .log-section {
+                padding: 14px;
+                margin-bottom: 14px;
+            }
+
+            .info-section h3,
+            .log-section h3 {
+                font-size: 0.9em;
+            }
+
+            .log {
+                max-height: 180px;
+            }
+
+            .log-item {
+                font-size: 0.8em;
+                padding: 4px;
+            }
+
+            .footer {
+                font-size: 0.8em;
+                margin-top: 16px;
+                padding-top: 12px;
+            }
+
+            .time-display {
+                font-size: 0.8em;
+                margin-top: 12px;
+            }
+        }
+
+        @media (max-width: 320px) {
+            .header h1 {
+                font-size: 1.6em;
+            }
+
+            .btn {
+                font-size: 0.85em;
+                padding: 10px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Lu 🤖</h1>
+            <p>Painel de Controle - Espaço TS</p>
+        </div>
+
+        <div class="api-config">
+            <label for="apiUrl">URL da API:</label>
+            <input type="text" id="apiUrl" placeholder="https://bot-tami.site/bot-hostinger/" value="">
+            <small style="color: #999; margin-top: 5px; display: block;">Ex: https://seu-dominio.com/caminho/ (com barra no final)</small>
+        </div>
+
+        <div class="api-config">
+            <label for="apiToken">Token de Autenticação:</label>
+            <input type="password" id="apiToken" placeholder="Cole seu token aqui" value="">
+            <small style="color: #999; margin-top: 5px; display: block;">Encontre em .env (API_TOKEN=)</small>
+            <small style="color: #f44336; margin-top: 3px; display: block;">⚠️ Nunca compartilhe seu token</small>
+        </div>
+
+        <div class="status-section">
+            <div class="status-display">
+                <span class="status-indicator offline" id="statusIndicator"></span>
+                <span id="statusText">Desconectado</span>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn btn-ligar" id="btnLigar" onclick="ligarBot()">
+                ▶ LIGAR
+            </button>
+            <button class="btn btn-desligar" id="btnDesligar" onclick="desligarBot()" disabled>
+                ⏹ DESLIGAR
+            </button>
+        </div>
+
+        <div class="info-section">
+            <h3>📊 Status do Servidor</h3>
+            <div class="info-box">
+                <p id="infoText">Conectando...</p>
+            </div>
+        </div>
+
+        <div class="log-section">
+            <h3>📋 Log de Ações</h3>
+            <div class="log" id="log">
+                <div class="log-item info">Painel inicializado...</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Bot Lu - Espaço TS © 2026</p>
+            <p>Versão 1.0</p>
+        </div>
+
+        <div class="time-display">
+            <small id="currentTime"></small>
+        </div>
+    </div>
+
+    <script>
+        const LOG_MAX_ITEMS = 15;
+        let apiUrl = localStorage.getItem('apiUrl') || '';
+        let apiToken = localStorage.getItem('apiToken') || '';
+
+        // Validar URL
+        function validarURL(url) {
+            try {
+                new URL(url);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // Carregar configurações salvas
+        document.getElementById('apiUrl').value = apiUrl;
+        document.getElementById('apiToken').value = apiToken;
+
+        // Salvar URL
+        document.getElementById('apiUrl').addEventListener('change', (e) => {
+            let url = e.target.value.trim();
+            
+            if (!url) {
+                adicionarLog('❌ URL não pode estar vazia', 'error');
+                return;
+            }
+
+            if (!validarURL(url)) {
+                adicionarLog('❌ URL inválida (deve ser https://...)', 'error');
+                return;
+            }
+
+            if (!url.endsWith('/')) {
+                url += '/';
+            }
+
+            apiUrl = url;
+            localStorage.setItem('apiUrl', apiUrl);
+            adicionarLog('✓ URL da API atualizada', 'success');
+            verificarStatus();
+        });
+
+        // Salvar Token
+        document.getElementById('apiToken').addEventListener('change', (e) => {
+            const token = e.target.value.trim();
+            
+            if (!token) {
+                adicionarLog('⚠️ Token vazio', 'info');
+                apiToken = '';
+                localStorage.removeItem('apiToken');
+                return;
+            }
+
+            if (token.length < 5) {
+                adicionarLog('❌ Token deve ter pelo menos 5 caracteres', 'error');
+                return;
+            }
+
+            apiToken = token;
+            localStorage.setItem('apiToken', apiToken);
+            adicionarLog('✓ Token atualizado com sucesso', 'success');
+        });
+
+        // Atualizar hora
+        function atualizarHora() {
+            const agora = new Date();
+            const horario = agora.toLocaleString('pt-BR', {
+                weekday: 'short',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('currentTime').textContent = horario;
+        }
+
+        atualizarHora();
+        setInterval(atualizarHora, 1000);
+
+        // Adicionar log
+        function adicionarLog(mensagem, tipo = 'info') {
+            const log = document.getElementById('log');
+            const item = document.createElement('div');
+            item.className = `log-item ${tipo}`;
+            
+            const hora = new Date().toLocaleTimeString('pt-BR', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            item.textContent = `[${hora}] ${mensagem}`;
+            log.insertBefore(item, log.firstChild);
+            
+            while (log.children.length > LOG_MAX_ITEMS) {
+                log.removeChild(log.lastChild);
+            }
+        }
+
+        // Ligar Bot
+        async function ligarBot() {
+            if (!apiUrl || !validarURL(apiUrl)) {
+                adicionarLog('❌ Configure a URL da API primeiro (válida)', 'error');
+                document.getElementById('infoText').textContent = '❌ URL da API inválida';
+                return;
+            }
+
+            if (!apiToken) {
+                adicionarLog('❌ Configure o token de autenticação', 'error');
+                document.getElementById('infoText').textContent = '❌ Token não configurado';
+                return;
+            }
+
+            const btn = document.getElementById('btnLigar');
+            const btnDesligar = document.getElementById('btnDesligar');
+            const statusIndicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
+            const infoText = document.getElementById('infoText');
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span>Ligando...';
+
+            try {
+                const response = await fetch(`${apiUrl}api/bot/start`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-api-token': apiToken
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        throw new Error('Token inválido ou expirado');
+                    }
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    statusIndicator.className = 'status-indicator online';
+                    statusText.textContent = 'Conectado e Online ✓';
+                    infoText.textContent = '✓ Bot ligado e pronto para receber mensagens';
+                    btnDesligar.disabled = false;
+                    btn.disabled = true;
+                    adicionarLog('✓ Bot ligado com sucesso', 'success');
+                } else {
+                    adicionarLog(`❌ ${data.message || data.error}`, 'error');
+                    infoText.textContent = `❌ ${data.message || 'Erro desconhecido'}`;
+                    btn.disabled = false;
+                }
+            } catch (erro) {
+                const errorMsg = erro.message || 'Erro desconhecido';
+                adicionarLog(`❌ Erro ao conectar: ${errorMsg}`, 'error');
+                infoText.textContent = `❌ Erro: ${errorMsg}`;
+                btn.disabled = false;
+                statusIndicator.className = 'status-indicator offline';
+                statusText.textContent = 'Desconectado';
+                btnDesligar.disabled = true;
+            } finally {
+                btn.innerHTML = '▶ LIGAR';
+            }
+        }
+
+        // Desligar Bot
+        async function desligarBot() {
+            if (!apiUrl || !validarURL(apiUrl)) {
+                adicionarLog('❌ Configure a URL da API primeiro', 'error');
+                return;
+            }
+
+            if (!apiToken) {
+                adicionarLog('❌ Configure o token de autenticação', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('btnDesligar');
+            const btnLigar = document.getElementById('btnLigar');
+            const statusIndicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
+            const infoText = document.getElementById('infoText');
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span>Desligando...';
+
+            try {
+                const response = await fetch(`${apiUrl}api/bot/stop`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-api-token': apiToken
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        throw new Error('Token inválido ou expirado');
+                    }
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    statusIndicator.className = 'status-indicator offline';
+                    statusText.textContent = 'Desconectado';
+                    infoText.textContent = '⏹ Bot desligado com sucesso';
+                    btnLigar.disabled = false;
+                    btn.disabled = true;
+                    adicionarLog('✓ Bot desligado com sucesso', 'success');
+                } else {
+                    adicionarLog(`❌ ${data.message || data.error}`, 'error');
+                    infoText.textContent = `❌ ${data.message || 'Erro desconhecido'}`;
+                    btn.disabled = false;
+                }
+            } catch (erro) {
+                const errorMsg = erro.message || 'Erro desconhecido';
+                adicionarLog(`❌ Erro ao conectar: ${errorMsg}`, 'error');
+                infoText.textContent = `❌ Erro: ${errorMsg}`;
+                btn.disabled = false;
+            } finally {
+                btn.innerHTML = '⏹ DESLIGAR';
+            }
+        }
+
+        // Verificar status ao carregar
+        async function verificarStatus() {
+            if (!apiUrl || !validarURL(apiUrl)) {
+                document.getElementById('infoText').textContent = '⚠️ Configure a URL da API para continuar';
+                document.getElementById('statusIndicator').className = 'status-indicator offline';
+                document.getElementById('statusText').textContent = 'Não configurado';
+                document.getElementById('btnLigar').disabled = false;
+                document.getElementById('btnDesligar').disabled = true;
+                return;
+            }
+
+            try {
+                const headers = {};
+                if (apiToken) {
+                    headers['x-api-token'] = apiToken;
+                }
+
+                const response = await fetch(`${apiUrl}api/bot/status`, {
+                    headers: headers
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        throw new Error('Token inválido - Atualize e tente novamente');
+                    }
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                const statusIndicator = document.getElementById('statusIndicator');
+                const statusText = document.getElementById('statusText');
+                const btn = document.getElementById('btnLigar');
+                const btnDesligar = document.getElementById('btnDesligar');
+                const infoText = document.getElementById('infoText');
+
+                if (data.status) {
+                    statusIndicator.className = 'status-indicator online';
+                    statusText.textContent = 'Conectado e Online ✓';
+                    btn.disabled = true;
+                    btnDesligar.disabled = false;
+                    infoText.textContent = '✓ Bot está rodando e pronto para receber mensagens';
+                } else {
+                    statusIndicator.className = 'status-indicator offline';
+                    statusText.textContent = 'Desconectado';
+                    btn.disabled = false;
+                    btnDesligar.disabled = true;
+                    infoText.textContent = '⏹ Bot desligado - Clique em LIGAR para iniciar';
+                }
+            } catch (erro) {
+                const errorMsg = erro.message || 'Conexão recusada';
+                document.getElementById('statusIndicator').className = 'status-indicator offline';
+                document.getElementById('statusText').textContent = 'Desconectado';
+                document.getElementById('infoText').textContent = `⚠️ Servidor não respondeu: ${errorMsg}`;
+                document.getElementById('btnLigar').disabled = false;
+                document.getElementById('btnDesligar').disabled = true;
+                
+                // Log silencioso para não poluir durante verificações automáticas
+            }
+        }
+
+        // Verificar status ao carregar e a cada 5 segundos
+        window.addEventListener('DOMContentLoaded', () => {
+            adicionarLog('Painel de controle iniciado', 'success');
+            if (apiUrl) {
+                verificarStatus();
+            }
+        });
+
+        setInterval(() => {
+            if (apiUrl) {
+                verificarStatus();
+            }
+        }, 5000);
+    </script>
+</body>
+</html>

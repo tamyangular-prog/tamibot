@@ -1,0 +1,79 @@
+# ============================================================
+# .gitignore - Bot Lu
+# ============================================================
+# Este arquivo garante que dados sensíveis não sejam commitados
+
+# ⚠️ CRÍTICO: Nunca versionar arquivo de configuração
+.env
+.env.local
+.env.production
+
+# ⚠️ CRÍTICO: Nunca versionar sessão WhatsApp
+.wwebjs_auth/
+.wwebjs_cache/
+
+# Node.js
+node_modules/
+npm-debug.log
+npm-error.log
+yarn-error.log
+package-lock.json
+
+# Sistema operacional
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+
+# Electron
+dist/
+out/
+
+# Logs
+logs/
+*.log
+lerna-debug.log*
+
+# Misc
+*.bak
+*.tmp
+
+# ============================================================
+# EXCEÇÕES: Estes arquivos DEVEM estar no Git
+# ============================================================
+# (Use ! para exceções)
+
+# Exemplos de configuração (DEVEM estar no Git)
+!.env.example
+
+# ============================================================
+# NOTAS IMPORTANTES
+# ============================================================
+#
+# 1. .env - Contém API_TOKEN sensível
+#    Cada máquina (dev/prod) deve ter seu próprio .env
+#    Copie de .env.example e customize
+#
+# 2. .wwebjs_auth/ - Sessão WhatsApp
+#    Contém dados de autenticação do WhatsApp
+#    Nunca compartilhe ou commit
+#
+# 3. Para adicionar manualmente:
+#    git rm --cached .env
+#    git rm --cached -r .wwebjs_auth
+#    git commit -m "Remove sensitive files"
+#
+# ============================================================
