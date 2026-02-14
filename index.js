@@ -24,7 +24,7 @@ if (!API_TOKEN) {
 console.log('[CONFIG] ✓ Token válido');
 
 // =========================
-// EXPRESS SERVER
+// EXPRESS SERVER (obrigatório no Render)
 // =========================
 
 const app = express();
@@ -35,6 +35,10 @@ app.get('/', (req, res) => {
   res.send('Bot Lu rodando no Render ✅');
 });
 
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
 app.listen(PORT, () => {
   console.log(`🌐 Servidor HTTP ativo na porta ${PORT}`);
 });
@@ -43,12 +47,27 @@ app.listen(PORT, () => {
 // WHATSAPP BOT
 // =========================
 
+console.log('[BOT] Iniciando cliente WhatsApp...');
+
 const client = new Client({
   authStrategy: new LocalAuth(),
   puppeteer: {
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    headless: true,
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-gpu',
+      '--no-zygote',
+      '--single-process'
+    ]
   }
 });
+
+// =========================
+// EVENTOS
+// =========================
 
 client.on('qr', qr => {
   console.log('📱 Escaneie o QR Code abaixo:');
@@ -59,10 +78,40 @@ client.on('ready', () => {
   console.log('🚀 Bot iniciado com sucesso');
 });
 
+client.on('authenticated', () => {
+  console.log('🔐 Autenticado com sucesso');
+});
+
+client.on('auth_failure', msg => {
+  console.error('❌ Falha na autenticação:', msg);
+});
+
+client.on('disconnected', reason => {
+  console.log('⚠️ Bot desconectado:', reason);
+});
+
+// =========================
+// MENSAGENS
+// =========================
+
 client.on('message', async msg => {
-  if (msg.body.toLowerCase() === 'oi') {
-    msg.reply('Olá! Sou a Lu do Espaço TS. Como posso te ajudar?');
+  try {
+    if (msg.from.endsWith('@c.us')) {
+      const text = msg.body.toLowerCase().trim();
+
+      if (text === 'oi' || text === 'olá' || text === 'ola') {
+        await msg.reply('Olá! Sou a Lu do Espaço TS. Como posso te ajudar?');
+      }
+    }
+  } catch (err) {
+    console.error('Erro ao responder mensagem:', err.message);
   }
 });
 
-client.initialize();
+// =========================
+// START
+// =========================
+
+client.initialize().catch(err => {
+  console.error('❌ Erro ao inicializar cliente:', err.message);
+});
