@@ -2,16 +2,17 @@ FROM ghcr.io/puppeteer/puppeteer:latest
 
 USER root
 
-# Instala dependências essenciais do sistema para o Chrome
+# Instala as dependências corrigidas (ajustamos o nss para libnss3)
 RUN apt-get update && apt-get install -y \
     libgbm-dev \
-    nss \
     fonts-liberation \
     libasound2 \
     libnspr4 \
     libnss3 \
     lsb-release \
     xdg-utils \
+    wget \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
