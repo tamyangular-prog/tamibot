@@ -1,177 +1,21 @@
-rfeito — vou te entregar um pacote completo de transferência pra você copiar e colar lá no Gemini e continuar sem perder nada. Vou organizar em blocos claros.
-
-Você pode mandar tudo isso em uma única mensagem pra ele.
-
-✅ CONTEXTO DO PROJETO
-
-Estou criando:
-
-Bot WhatsApp
-
-Node.js
-
-biblioteca: whatsapp-web.js
-
-usa puppeteer
-
-servidor Express só para manter porta aberta
-
-hospedagem atual deu erro no Render por causa do Chrome/Puppeteer
-
-vou migrar para Railway (ou outra que suporte Puppeteer)
-
-✅ OBJETIVO
-
-Quero rodar um bot WhatsApp com:
-
-QR code no terminal
-
-respostas automáticas
-
-token de API via variável de ambiente
-
-deploy em nuvem
-
-Puppeteer funcionando corretamente
-
-sem erro de Chrome not found
-
-✅ package.json ATUAL
-
-Entregar exatamente assim:
-
 {
   "name": "bot-tami",
   "version": "1.0.0",
   "description": "Bot WhatsApp para Espaço TS",
   "main": "index.js",
   "type": "commonjs",
-
   "scripts": {
-    "start": "node index.js",
-    "postinstall": "npx puppeteer browsers install chrome"
+    "start": "node index.js"
   },
-
   "engines": {
     "node": ">=18"
   },
-
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "puppeteer": "^24.31.0",
+    "puppeteer": "^24.1.0",
     "qrcode-terminal": "^0.12.0",
     "whatsapp-web.js": "github:pedroslopez/whatsapp-web.js"
   }
 }
-
-✅ index.js ATUAL
-require('dotenv').config();
-
-const express = require('express');
-const cors = require('cors');
-const { Client, LocalAuth } = require('whatsapp-web.js');
-const qrcode = require('qrcode-terminal');
-
-console.log('[CONFIG] ✓ Arquivo .env carregado');
-
-const API_TOKEN = process.env.API_TOKEN;
-const PORT = process.env.PORT || 3000;
-
-console.log('[CONFIG] Validando configurações...');
-
-if (!API_TOKEN) {
-  console.error('[CONFIG] ✗ API_TOKEN não definido');
-  process.exit(1);
-}
-
-console.log('[CONFIG] ✓ Token válido');
-
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-app.get('/', (req, res) => {
-  res.send('Bot rodando ✅');
-});
-
-app.listen(PORT, () => {
-  console.log(`🌐 Servidor HTTP ativo na porta ${PORT}`);
-});
-
-console.log('[BOT] Iniciando cliente WhatsApp...');
-
-const client = new Client({
-  authStrategy: new LocalAuth(),
-  puppeteer: {
-    headless: true,
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage'
-    ]
-  }
-});
-
-client.on('qr', qr => {
-  console.log('📱 Escaneie o QR Code:');
-  qrcode.generate(qr, { small: true });
-});
-
-client.on('ready', () => {
-  console.log('🚀 Bot iniciado com sucesso');
-});
-
-client.on('message', msg => {
-  if (msg.body.toLowerCase() === 'oi') {
-    msg.reply('Olá! Sou a Lu do Espaço TS. Como posso ajudar?');
-  }
-});
-
-client.initialize().catch(err => {
-  console.error('❌ Erro ao inicializar:', err.message);
-});
-
-✅ ERRO QUE ESTÁ ACONTECENDO
-
-Puppeteer não encontra Chrome no Render:
-
-Could not find Chrome
-Browser was not found at the configured executablePath
-/opt/render/.cache/puppeteer
-
-
-Mesmo usando:
-
-postinstall puppeteer browsers install chrome
-
-✅ O QUE EU QUERO QUE ELE ME AJUDE
-
-Peça isso claramente:
-
-Quero que você me ajude a:
-
-1) Ajustar esse bot para rodar em Railway
-2) Garantir Puppeteer funcionando
-3) Criar configuração de deploy correta
-4) Evitar erro de Chrome
-5) Manter sessão do WhatsApp
-6) Melhorar estrutura do projeto
-7) Se necessário usar Docker
-
-✅ VARIÁVEIS DE AMBIENTE
-
-Eu uso:
-
-API_TOKEN=xxxxx
-PORT=3000
-
-✅ PEDIDO FINAL PARA O GEMINI
-
-Cole isso no final:
-
-Responda passo a passo para leigo.
-Não pule etapas.
-Forneça arquivos completos prontos para copiar e colar.
-Não quebre código.
