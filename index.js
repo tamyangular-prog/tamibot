@@ -5,7 +5,7 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.get('/', (req, res) => res.send('Bot Lu Ativo ✅'));
+app.get('/', (req, res) => res.send('Bot Lu - Status: Ativo ✅'));
 app.listen(PORT, () => console.log(`🌐 Servidor na porta ${PORT}`));
 
 console.log('[BOT] Iniciando WhatsApp...');
@@ -14,25 +14,24 @@ const client = new Client({
     authStrategy: new LocalAuth({ dataPath: '/app/sessions' }),
     puppeteer: {
         headless: true,
-        // No Docker do Puppeteer, o executável fica SEMPRE aqui:
-        executablePath: '/usr/bin/google-chrome',
+        executablePath: '/usr/bin/google-chrome', // Caminho padrão no Docker
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
-            '--disable-gpu'
+            '--disable-gpu',
+            '--no-zygote'
         ]
     }
 });
 
 client.on('qr', qr => {
-    console.log('📱 QR CODE RECEBIDO!');
+    console.log('📱 QR CODE RECEBIDO:');
     qrcode.generate(qr, { small: true });
 });
 
-client.on('ready', () => console.log('🚀 BOT CONECTADO!'));
+client.on('ready', () => console.log('🚀 BOT CONECTADO COM SUCESSO!'));
 
-// Tratamento de erro detalhado para pegarmos o vilão
 client.initialize().catch(err => {
-    console.log('❌ ERRO DETALHADO:', err);
+    console.error('❌ Erro na inicialização:', err.message || err);
 });
