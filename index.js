@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const express = require('express');
@@ -5,39 +6,57 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Rota para manter o Railway feliz
-app.get('/', (req, res) => res.send('Bot Lu Ativo ✅'));
-app.listen(PORT, () => console.log(`🌐 Servidor na porta ${PORT}`));
+// Interface simples para monitoramento
+app.get('/', (req, res) => {
+    res.send(`
+        <div style="font-family: sans-serif; text-align: center; margin-top: 50px;">
+            <h1 style="color: #25d366;">Lu - Espaço TS</h1>
+            <p>O servidor está rodando na porta ${PORT}</p>
+            <p>Verifique os <b>Logs do Railway</b> para escaneiar o QR Code.</p>
+        </div>
+    `);
+});
 
-console.log('[BOT] Preparando navegador...');
+app.listen(PORT, () => console.log(`🌐 Servidor ativo na porta ${PORT}`));
+
+console.log('[BOT] Iniciando o navegador Chrome...');
 
 const client = new Client({
-    authStrategy: new LocalAuth({ dataPath: '/app/sessions' }),
+    authStrategy: new LocalAuth({
+        dataPath: '/app/sessions' // Local definido no seu Dockerfile
+    }),
     puppeteer: {
         headless: true,
+        // O caminho abaixo é o padrão da imagem que você colocou no Dockerfile
+        executablePath: '/usr/bin/google-chrome',
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
             '--disable-gpu',
-            '--disable-extensions',
-            '--remote-debugging-port=9222'
+            '--no-zygote',
+            '--single-process'
         ]
     }
 });
 
-client.on('qr', qr => {
-    console.log('📱 QR CODE RECEBIDO!');
+// Evento de geração do QR Code
+client.on('qr', (qr) => {
+    console.log('📱 QR CODE GERADO COM SUCESSO!');
+    console.log('Abaixe o zoom do console se o código parecer quebrado.');
     qrcode.generate(qr, { small: true });
 });
 
+// Evento de conexão bem-sucedida
 client.on('ready', () => {
-    console.log('🚀 BOT CONECTADO COM SUCESSO!');
+    console.log('🚀 BOT CONECTADO E PRONTO PARA USO!');
 });
 
-// Inicialização com tratamento de erro simplificado
-client.initialize();
+// Tratamento de erros para evitar que o bot caia
+client.initialize().catch(err => {
+    console.error('❌ Erro ao iniciar o WhatsApp:', err);
+});
 
 process.on('unhandledRejection', error => {
-    console.log('Aguardando inicialização estável...', error.message);
+    console.log('Sincronizando navegador...', error.message);
 });
