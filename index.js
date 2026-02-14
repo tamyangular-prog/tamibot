@@ -6,18 +6,29 @@ const qrcode = require('qrcode-terminal');
 const API_TOKEN = process.env.API_TOKEN;
 const PORT = process.env.PORT || 3000;
 
-const app = express();
-app.get('/', (req, res) => res.send('Bot Online ✅'));
-app.listen(PORT, () => console.log(`🌐 Servidor na porta ${PORT}`));
+// Validação básica do token
+if (!API_TOKEN) {
+    console.error('[CONFIG] ✗ API_TOKEN não definido nas variáveis do Railway');
+    process.exit(1);
+}
 
-console.log('[BOT] Iniciando cliente...');
+const app = express();
+
+// Rota para checar se o bot está vivo
+app.get('/', (req, res) => {
+    res.send(`<h1>Bot Lu - Espaço TS</h1><p>Status: Online ✅</p>`);
+});
+
+app.listen(PORT, () => console.log(`🌐 Servidor rodando na porta ${PORT}`));
+
+console.log('[BOT] Iniciando cliente WhatsApp...');
 
 const client = new Client({
     authStrategy: new LocalAuth({ dataPath: '/app/sessions' }),
-    authTimeoutMs: 60000, // Aumenta o tempo de espera para 60 segundos
+    authTimeoutMs: 60000, // Dá 1 minuto para o bot carregar
     puppeteer: {
         headless: true,
-        executablePath: '/usr/bin/google-chrome', // Caminho direto do Chrome no Docker
+        // Removido o executablePath fixo para evitar erro de "Browser not found"
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -34,9 +45,17 @@ client.on('qr', qr => {
     qrcode.generate(qr, { small: true });
 });
 
-client.on('ready', () => console.log('🚀 BOT CONECTADO!'));
+client.on('ready', () => {
+    console.log('🚀 BOT CONECTADO COM SUCESSO!');
+});
 
-// Evita que o erro de timeout feche o processo imediatamente
+// Resposta simples para teste
+client.on('message', msg => {
+    if (msg.body.toLowerCase() === 'oi') {
+        msg.reply('Olá! Sou a Lu do Espaço TS. Como posso ajudar?');
+    }
+});
+
 client.initialize().catch(err => {
-    console.error('❌ Erro na inicialização:', err.message);
+    console.error('❌ Erro fatal na inicialização:', err.message);
 });
