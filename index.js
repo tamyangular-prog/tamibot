@@ -8,7 +8,7 @@ const qrcode = require('qrcode-terminal');
 console.log('[CONFIG] ✓ Arquivo .env carregado');
 
 // =========================
-// CONFIG VARIÁVEIS
+// CONFIG
 // =========================
 
 const API_TOKEN = process.env.API_TOKEN;
@@ -17,14 +17,14 @@ const PORT = process.env.PORT || 3000;
 console.log('[CONFIG] Validando configurações...');
 
 if (!API_TOKEN) {
-  console.error('[CONFIG] ✗ API_TOKEN não definido nas variáveis de ambiente');
+  console.error('[CONFIG] ✗ API_TOKEN não definido');
   process.exit(1);
 }
 
 console.log('[CONFIG] ✓ Token válido');
 
 // =========================
-// EXPRESS SERVER (obrigatório no Render)
+// EXPRESS
 // =========================
 
 const app = express();
@@ -35,42 +35,41 @@ app.get('/', (req, res) => {
   res.send('Bot Lu rodando no Render ✅');
 });
 
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
-
 app.listen(PORT, () => {
   console.log(`🌐 Servidor HTTP ativo na porta ${PORT}`);
 });
 
 // =========================
-// WHATSAPP BOT
+// CHROME PATH RENDER
 // =========================
 
-console.log('[BOT] Iniciando cliente WhatsApp...');
+const chromePath =
+  process.env.PUPPETEER_EXECUTABLE_PATH ||
+  '/opt/render/.cache/puppeteer/chrome/linux-145.0.7632.67/chrome-linux64/chrome';
+
+console.log('[BOT] Usando Chrome em:', chromePath);
+
+// =========================
+// WHATSAPP
+// =========================
 
 const client = new Client({
   authStrategy: new LocalAuth(),
+
   puppeteer: {
+    executablePath: chromePath,
     headless: true,
-    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
       '--disable-dev-shm-usage',
-      '--disable-gpu',
-      '--no-zygote',
-      '--single-process'
+      '--disable-gpu'
     ]
   }
 });
 
-// =========================
-// EVENTOS
-// =========================
-
 client.on('qr', qr => {
-  console.log('📱 Escaneie o QR Code abaixo:');
+  console.log('📱 Escaneie o QR Code:');
   qrcode.generate(qr, { small: true });
 });
 
@@ -78,39 +77,13 @@ client.on('ready', () => {
   console.log('🚀 Bot iniciado com sucesso');
 });
 
-client.on('authenticated', () => {
-  console.log('🔐 Autenticado com sucesso');
-});
-
-client.on('auth_failure', msg => {
-  console.error('❌ Falha na autenticação:', msg);
-});
-
-client.on('disconnected', reason => {
-  console.log('⚠️ Bot desconectado:', reason);
-});
-
-// =========================
-// MENSAGENS
-// =========================
-
-client.on('message', async msg => {
-  try {
-    if (msg.from.endsWith('@c.us')) {
-      const text = msg.body.toLowerCase().trim();
-
-      if (text === 'oi' || text === 'olá' || text === 'ola') {
-        await msg.reply('Olá! Sou a Lu do Espaço TS. Como posso te ajudar?');
-      }
-    }
-  } catch (err) {
-    console.error('Erro ao responder mensagem:', err.message);
+client.on('message', msg => {
+  if (msg.body.toLowerCase() === 'oi') {
+    msg.reply('Olá! Sou a Lu do Espaço TS. Como posso te ajudar?');
   }
 });
 
-// =========================
-// START
-// =========================
+console.log('[BOT] Iniciando cliente WhatsApp...');
 
 client.initialize().catch(err => {
   console.error('❌ Erro ao inicializar cliente:', err.message);
