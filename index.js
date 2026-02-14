@@ -5,16 +5,16 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.get('/', (req, res) => res.send('Bot Lu Ativo ✅'));
-app.listen(PORT, () => console.log(`🌐 Servidor na porta ${PORT}`));
+app.get('/', (req, res) => res.send('<h1>Bot Lu - Espaço TS</h1><p>Status: Servidor Ativo ✅</p>'));
+app.listen(PORT, () => console.log(`🌐 Servidor rodando na porta ${PORT}`));
 
-console.log('[BOT] Iniciando...');
+console.log('[BOT] Iniciando WhatsApp...');
 
 const client = new Client({
     authStrategy: new LocalAuth({ dataPath: '/app/sessions' }),
     puppeteer: {
         headless: true,
-        // Removemos o executablePath para ele encontrar o Chrome sozinho
+        // Deixamos sem o executablePath para o Puppeteer usar o que ele baixou no build
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -25,10 +25,18 @@ const client = new Client({
 });
 
 client.on('qr', qr => {
-    console.log('📱 QR CODE RECEBIDO!');
+    console.log('📱 QR CODE RECEBIDO! ESCANEIE ABAIXO:');
     qrcode.generate(qr, { small: true });
 });
 
-client.on('ready', () => console.log('🚀 BOT CONECTADO!'));
+client.on('ready', () => {
+    console.log('🚀 BOT CONECTADO COM SUCESSO!');
+});
 
-client.initialize().catch(err => console.error('❌ Erro:', err.message));
+client.on('auth_failure', msg => {
+    console.error('❌ Falha na autenticação:', msg);
+});
+
+client.initialize().catch(err => {
+    console.error('❌ Erro de inicialização:', err.message);
+});
