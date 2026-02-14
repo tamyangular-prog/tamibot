@@ -7,10 +7,6 @@ const qrcode = require('qrcode-terminal');
 
 console.log('[CONFIG] ✓ Arquivo .env carregado');
 
-// =========================
-// CONFIG
-// =========================
-
 const API_TOKEN = process.env.API_TOKEN;
 const PORT = process.env.PORT || 3000;
 
@@ -40,24 +36,15 @@ app.listen(PORT, () => {
 });
 
 // =========================
-// CHROME PATH RENDER
+// WHATSAPP CLIENT
 // =========================
 
-const chromePath =
-  process.env.PUPPETEER_EXECUTABLE_PATH ||
-  '/opt/render/.cache/puppeteer/chrome/linux-145.0.7632.67/chrome-linux64/chrome';
-
-console.log('[BOT] Usando Chrome em:', chromePath);
-
-// =========================
-// WHATSAPP
-// =========================
+console.log('[BOT] Iniciando cliente WhatsApp...');
 
 const client = new Client({
   authStrategy: new LocalAuth(),
 
   puppeteer: {
-    executablePath: chromePath,
     headless: true,
     args: [
       '--no-sandbox',
@@ -82,8 +69,6 @@ client.on('message', msg => {
     msg.reply('Olá! Sou a Lu do Espaço TS. Como posso te ajudar?');
   }
 });
-
-console.log('[BOT] Iniciando cliente WhatsApp...');
 
 client.initialize().catch(err => {
   console.error('❌ Erro ao inicializar cliente:', err.message);
