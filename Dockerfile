@@ -1,20 +1,27 @@
 FROM ghcr.io/puppeteer/puppeteer:latest
 
-# Define o diretório de trabalho
+USER root
+
+# Instala dependências essenciais do sistema para o Chrome
+RUN apt-get update && apt-get install -y \
+    libgbm-dev \
+    nss \
+    fonts-liberation \
+    libasound2 \
+    libnspr4 \
+    libnss3 \
+    lsb-release \
+    xdg-utils \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
-# Copia os arquivos de dependência
 COPY package*.json ./
-
-# Instala as dependências (como root para evitar erro de permissão, depois volta pro user padrão se quiser, mas aqui simplificamos)
-USER root
 RUN npm install
 
-# Copia o restante do código
 COPY . .
 
-# Expõe a porta que o Express usa
-EXPOSE 3000
+# Garante permissão na pasta de sessão
+RUN mkdir -p /app/sessions && chmod -R 777 /app/sessions
 
-# Comando para iniciar
 CMD ["node", "index.js"]
